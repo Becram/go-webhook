@@ -1,0 +1,23 @@
+project_name: go-webhook
+builds:
+  - env: [CGO_ENABLED=0]
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+nfpms:
+- maintainer: Bikram Dhoju <bikram.dhoju@gmail.com>
+  description: go-webhook
+  homepage: https://github.com/becram
+  license: MIT
+  formats:
+  - deb
+  - rpm
+  - apk
+
+dockers:
+- image_templates: ["ghcr.io/becram/go-webhook:{{ .Version }}"]
+  dockerfile: Dockerfile

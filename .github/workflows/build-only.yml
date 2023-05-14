@@ -1,0 +1,37 @@
+name: Build test
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+
+env:
+  PHP_FPM_VERSION: 8.1.17
+  ALPINE_VERSION: 3.17
+  
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php_version: ["8.1.17"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 100
+      
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push PHP-FPM
+        uses: docker/build-push-action@v3
+        with:
+          context: ./${{ matrix.php_version }}
+          file: ./${{ matrix.php_version }}/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=min
+          build-args: |
+            "TARGETARCH=amd64"
+            "PHP_FPM_VERSION=${{ env.PHP_FPM_VERSION }}"
+            "ALPINE_VERSION=${{ env.ALPINE_VERSION }}"
