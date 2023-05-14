@@ -12,6 +12,7 @@ env:
 permissions:
   id-token: write
   packages: write
+  contents: read
 
 jobs:
   build-push:
