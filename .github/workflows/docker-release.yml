@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      
+      - name: Get Version Date
+        run: |
+          echo $(TZ=Asia/Bangkok date '+%Y%m%d-%H%M') > version.txt
+          echo "RELEASE_VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images:
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value= ${{ env.RELEASE_VERSION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+
+      - name: Login to registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      
+      - name: Build and push PHP-FPM
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=min
+          build-args: |
+            "TARGETARCH=amd64"
+
+      - uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
+        with:
+          tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+          tag_exists_error: true
+          message: "Latest release"
+      
+      - uses: ncipollo/release-action@v1
+        with:
+          generateReleaseNotes: true
+          tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
