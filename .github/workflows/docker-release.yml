@@ -9,6 +9,9 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  id-token: write
+  packages: write
 
 jobs:
   build-push:
@@ -43,7 +46,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       
-      - name: Build and push PHP-FPM
+      - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .

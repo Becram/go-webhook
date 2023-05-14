@@ -5,9 +5,6 @@ on:
     branches-ignore:
       - "main"
 
-env:
-  PHP_FPM_VERSION: 8.1.17
-  ALPINE_VERSION: 3.17
   
 jobs:
   build-test:
@@ -24,14 +21,12 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push PHP-FPM
+      - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./${{ matrix.php_version }}
-          file: ./${{ matrix.php_version }}/Dockerfile
+          context: .
+          file: Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=min
           build-args: |
             "TARGETARCH=amd64"
-            "PHP_FPM_VERSION=${{ env.PHP_FPM_VERSION }}"
-            "ALPINE_VERSION=${{ env.ALPINE_VERSION }}"
