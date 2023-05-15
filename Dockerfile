@@ -13,7 +13,9 @@ RUN go build -o bin/app .
 # ---
 FROM ubuntu:23.04 AS run
 
+
 COPY --from=build /work/bin/app /usr/local/bin/
 COPY --from=build /etc/ssl/certs /etc/ssl/certs
+COPY ./static  /work/static
 
 CMD ["app"]

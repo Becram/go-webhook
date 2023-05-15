@@ -39,7 +39,7 @@ var temp *template.Template
 
 func init() {
 	// template.Must takes the reponse of template.ParseFiles and does error checking
-	temp = template.Must(template.ParseFiles("./static/arthur-email.tpl.html"))
+	temp = template.Must(template.ParseFiles(os.Getenv("SG_EMAIL_TMPL_FILE")))
 }
 
 func updateTemplate(rel Release) string {

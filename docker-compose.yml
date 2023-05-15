@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  go-webhook:
+    container_name: go-webhook
+    env_file:
+    - ./.env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
