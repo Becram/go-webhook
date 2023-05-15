@@ -1,9 +1,9 @@
-name: Release
+name: Release docker
 
 on:
-  push:
-    branches:
-      - "main"
+  release:
+    types:
+      - "created"
 
 env:
   REGISTRY: ghcr.io
@@ -20,19 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get Version Date
-        run: |
-          echo $(TZ=Asia/Bangkok date '+%Y%m%d-%H%M') > version.txt
-          echo "RELEASE_VERSION=$(cat version.txt)" >> $GITHUB_ENV
-
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images:
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}
           tags: |
-            type=raw,value= ${{ env.RELEASE_VERSION }}
+            type=raw,value=latest
+            type=semver,pattern={{raw}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -57,15 +53,3 @@ jobs:
           cache-to: type=gha,mode=min
           build-args: |
             "TARGETARCH=amd64"
-
-      - uses: rickstaa/action-create-tag@v1
-        id: "tag_create"
-        with:
-          tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-          tag_exists_error: true
-          message: "Latest release"
-      
-      - uses: ncipollo/release-action@v1
-        with:
-          generateReleaseNotes: true
-          tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
