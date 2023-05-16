@@ -3,12 +3,14 @@ package webhook
 // parse errors
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"go-notify/mail"
 
@@ -54,13 +56,16 @@ func updateTemplate(rel Release) string {
 
 }
 
-func getArthurVersion(str string) string {
+func getArthurVersion(str string) (string, error) {
+	if !strings.HasPrefix(str, "Bump arthur") {
+		return "", errors.New("Not a arthur release")
+	}
 	var re = regexp.MustCompile(`(?m)v[0-9]\.[0-9]\.[0-9]+[0-9]`)
 	match := re.FindAllString(str, -1)
 	if len(match) < 1 {
-		log.Fatalln("no match version in pr")
+		return "", errors.New("No version match")
 	}
-	return match[0]
+	return match[0], nil
 }
 
 func GetReleaseData(w http.ResponseWriter, req *http.Request) {
@@ -94,12 +99,14 @@ func GetReleaseData(w http.ResponseWriter, req *http.Request) {
 	case github.PullRequestPayload:
 		pr := payload.(github.PullRequestPayload)
 		if *&pr.Action == "opened" || *&pr.Action == "edited" || *&pr.Action == "labeled" && *&pr.PullRequest.Head.User.Login == "arthur-crm" {
-			// Do whatever you want from here...
-			fmt.Printf("PR Title:  %s\t%s\t PR link:%s\n", *&pr.PullRequest.Title, *&pr.PullRequest.Body, *&pr.PullRequest.HTMLURL)
-			// mail.SendEmail(*&pr.PullRequest.Title, *&pr.PullRequest.Body)
-			// var email Email
-			out := Release{Name: "Arthur Version\t" + getArthurVersion(*&pr.PullRequest.Title), Body: *&pr.PullRequest.Body, Arthur: *&pr.PullRequest.User.Login, History: *&pr.PullRequest.HTMLURL}
-			mail.SendEmail(*&pr.PullRequest.Title, updateTemplate(out))
+			version, err := getArthurVersion(*&pr.PullRequest.Title)
+			if err == nil {
+				fmt.Printf("PR Title:  %s\t%s\t PR link:%s\n", *&pr.PullRequest.Title, *&pr.PullRequest.Body, *&pr.PullRequest.HTMLURL)
+				out := Release{Name: "Arthur Version\t" + version, Body: *&pr.PullRequest.Body, Arthur: *&pr.PullRequest.User.Login, History: *&pr.PullRequest.HTMLURL}
+				mail.SendEmail(*&pr.PullRequest.Title, updateTemplate(out))
+			}
+			fmt.Printf("no new version release detected for arthur\n")
+
 		}
 	}
 }
