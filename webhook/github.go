@@ -2,40 +2,21 @@ package webhook
 
 // parse errors
 import (
-	"bytes"
-	"errors"
+	"encoding/json"
 	"fmt"
+	"go-webhook/utility"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
-	"regexp"
-	"strings"
-
-	"go-notify/mail"
 
 	"github.com/go-playground/webhooks/v6/github"
 )
 
-// type Update interface {
-// 	prTemplate() string
-// 	prTemplate() string
-// }
-
-type Release struct {
-	Name    string `json:"name"`
-	Body    string `json:"body"`
-	Arthur  string `json:"arthur"`
-	History string `json:"history"`
-	Labels  string `json:"labels"`
+type Mail interface {
+	Send(string) error
+	getTemplate(*template.Template) string
 }
-
-// type PullRequest struct {
-// 	Title   string `json:"name"`
-// 	Body    string `json:"body"`
-// 	Arthur  string `json:"arthur"`
-// 	History string `json:"history"`
-// }
 
 var temp *template.Template
 
@@ -44,31 +25,7 @@ func init() {
 	temp = template.Must(template.ParseFiles(os.Getenv("SG_EMAIL_TMPL_FILE")))
 }
 
-func updateTemplate(rel Release) string {
-	fmt.Printf("Updating template %s\n", rel.History)
-	var buffer bytes.Buffer
-	err := temp.Execute(&buffer, rel)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return buffer.String()
-
-}
-
-func getArthurVersion(str string) (string, error) {
-	if !strings.HasPrefix(str, "Bump arthur") {
-		return "", errors.New("Not a arthur release")
-	}
-	var re = regexp.MustCompile(`(?m)v[0-9]\.[0-9]\.[0-9]+[0-9]`)
-	match := re.FindAllString(str, -1)
-	if len(match) < 1 {
-		return "", errors.New("No version match")
-	}
-	return match[0], nil
-}
-
-func GetReleaseData(w http.ResponseWriter, req *http.Request) {
+func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 	// PrintBody(req)
 
 	hook, err := github.New(github.Options.Secret(os.Getenv("GH_SECRET")))
@@ -76,37 +33,62 @@ func GetReleaseData(w http.ResponseWriter, req *http.Request) {
 		log.Fatal("wrong secret addressed: %w", err)
 	}
 	payload, err := hook.Parse(req, github.ReleaseEvent, github.PullRequestEvent)
-	// json.NewEncoder(w).Encode(payload)
 
 	if err != nil {
 		if err == github.ErrEventNotFound {
 			log.Println(err)
-			// ok event wasn;t one of the ones asked to be parsed
 		}
 	}
-	// fmt.Println(payload.(github.Webhook))
+	// fmt.Println(payload.(github.PullRequestPayload))
+
 	switch payload.(type) {
 
 	case github.ReleasePayload:
-		release := payload.(github.ReleasePayload)
-		if *&release.Action == "published" {
-			// Do whatever you want from here...
-			fmt.Printf("Release Name:  %s\t%s\n", *release.Release.Name, *release.Release.Body)
-			out := Release{Name: *release.Release.Name, Body: *release.Release.Body, Arthur: *&release.Release.Author.Login, History: *&release.Release.AssetsURL}
-			mail.SendEmail(*release.Release.Name, updateTemplate(out))
-		}
+		fmt.Println("Release Webhook triggered")
+		HandleReleaseEvent(payload.(github.ReleasePayload))
 
 	case github.PullRequestPayload:
-		pr := payload.(github.PullRequestPayload)
-		if *&pr.Action == "opened" || *&pr.Action == "edited" || *&pr.Action == "labeled" && *&pr.PullRequest.Head.User.Login == "arthur-crm" {
-			version, err := getArthurVersion(*&pr.PullRequest.Title)
-			if err == nil {
-				fmt.Printf("PR Title:  %s\t%s\t PR link:%s\n", *&pr.PullRequest.Title, *&pr.PullRequest.Body, *&pr.PullRequest.HTMLURL)
-				out := Release{Name: "Arthur Version\t" + version, Body: *&pr.PullRequest.Body, Arthur: *&pr.PullRequest.User.Login, History: *&pr.PullRequest.HTMLURL}
-				mail.SendEmail(*&pr.PullRequest.Title, updateTemplate(out))
-			}
-			fmt.Printf("no new version release detected for arthur\n")
+		fmt.Println("PR Webhook triggered")
+		HandlePullRequestEvent(payload.(github.PullRequestPayload))
 
-		}
+	default:
+		fmt.Println("Not a  release or pr event")
+
 	}
+
+}
+
+func HandleReleaseEvent(payload github.ReleasePayload) {
+	if payload.Action == "published" {
+		var mail Mail = &Release{Name: *payload.Release.Name, Body: *payload.Release.Body, Arthur: *&payload.Release.Author.Login, History: *&payload.Release.AssetsURL}
+		// fmt.Printf("Release %v\n", mail)
+		data, err := json.Marshal(mail)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%s\n", data)
+		emailTPL := mail.getTemplate(temp)
+		mail.Send(emailTPL)
+
+	}
+}
+
+func HandlePullRequestEvent(payload github.PullRequestPayload) {
+	if payload.Action == "opened" || payload.Action == "edited" || payload.Action == "labeled" && payload.PullRequest.Head.User.Login == "arthur-crm" {
+
+		version, err := utility.GetArthurVersion(payload.PullRequest.Title)
+		if err == nil {
+			fmt.Printf("Version: %s\n", version)
+			var mail Mail = &PullRequest{Title: "Arthur Version\t" + version, Body: payload.PullRequest.Body, Arthur: payload.PullRequest.User.Login, History: payload.PullRequest.HTMLURL}
+			data, err := json.Marshal(mail)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%s\n", data)
+			emailTPL := mail.getTemplate(temp)
+			mail.Send(emailTPL)
+		}
+
+	}
+
 }

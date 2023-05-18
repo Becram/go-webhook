@@ -2,13 +2,28 @@ package main
 
 import (
 	"fmt"
-	"go-notify/webhook"
+	"go-webhook/utility"
+	"go-webhook/webhook"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
 )
+
+var envs = []string{"SG_API_KEY", "SG_FROM", "SG_FROM_NAME", "SG_TO_LIST", "SG_EMAIL_TMPL_FILE", "PR_PREFIX", "GH_SECRET"}
+
+func init() {
+	for _, v := range envs {
+		if !utility.DoesEnvExist(v) {
+			fmt.Printf("Environment variable %s Doesn't exit", v)
+			os.Exit(0)
+		}
+		fmt.Printf("Set: %s\n", v)
+	}
+
+}
 
 type Route struct {
 	Name        string
@@ -43,7 +58,7 @@ var routes = Routes{
 		"postWebhook",
 		"POST",
 		"/webhook",
-		webhook.GetReleaseData,
+		webhook.GetWebhookData,
 	},
 	Route{
 		"getHealth",
