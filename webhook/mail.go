@@ -30,18 +30,6 @@ type PullRequest struct {
 	Labels  string `json:"labels"`
 }
 
-var envs = []string{"SG_API_KEY", "SG_FROM", "SG_FROM_NAME", "SG_TO_LIST", "SG_EMAIL_TMPL_FILE", "PR_PREFIX", "GH_SECRET"}
-
-func Init() {
-	for _, v := range envs {
-		if !utility.DoesEnvExist(v) {
-			fmt.Printf("Environment variable %s Doesn't exit", v)
-			os.Exit(0)
-		}
-	}
-
-}
-
 func (rel Release) Send(template string) error {
 	// Create a telegram service. Ignoring error for demo simplicity.
 	fmt.Printf("Sending email to %s\n", os.Getenv("SG_TO_LIST"))

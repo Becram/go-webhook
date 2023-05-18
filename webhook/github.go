@@ -74,8 +74,7 @@ func HandleReleaseEvent(payload github.ReleasePayload) {
 }
 
 func HandlePullRequestEvent(payload github.PullRequestPayload) {
-	if payload.Action == "opened" || payload.Action == "edited" || payload.Action == "labeled" && payload.PullRequest.Head.User.Login == "arthur-crm" {
-
+	if payload.Action == "closed" && payload.PullRequest.Merged && payload.PullRequest.Head.User.Login == "arthur-crm" {
 		version, err := utility.GetArthurVersion(payload.PullRequest.Title)
 		if err == nil {
 			fmt.Printf("Version: %s\n", version)
