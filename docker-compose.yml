@@ -8,5 +8,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - VERSION=Latest
     ports:
       - "8080:8080"

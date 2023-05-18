@@ -85,8 +85,8 @@ func Logger(inner http.Handler, name string) http.Handler {
 }
 
 func main() {
+	// Init()
 	r := NewRouter()
 	fmt.Print("Serving http request at localhost:8080.....\n")
 	log.Fatal(http.ListenAndServe(":8080", r))
-
 }

@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine AS build
+FROM golang:1.19-alpine AS build
 
 ENV GOOS=linux
 ENV GOARCH=amd64
@@ -12,6 +12,8 @@ RUN go build -o bin/app .
 
 # ---
 FROM ubuntu:23.04 AS run
+ARG VERSION
+ENV ARG VERSION=${VERSION}
 
 
 COPY --from=build /work/bin/app /usr/local/bin/

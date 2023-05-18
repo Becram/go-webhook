@@ -53,3 +53,4 @@ jobs:
           cache-to: type=gha,mode=min
           build-args: |
             "TARGETARCH=amd64"
+            "VERSION={{ env.DOCKER_METADATA_OUTPUT_VERSION }}"
