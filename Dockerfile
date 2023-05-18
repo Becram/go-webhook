@@ -13,7 +13,7 @@ RUN go build -o bin/app .
 # ---
 FROM ubuntu:23.04 AS run
 ARG VERSION
-ENV ARG VERSION=${VERSION}
+ENV VERSION=${VERSION}
 
 
 COPY --from=build /work/bin/app /usr/local/bin/
