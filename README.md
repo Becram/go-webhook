@@ -9,3 +9,4 @@
 * `SG_EMAIL_TMPL_FILE`    Location of the file email template file  `/work/static/email.pr.tpl.html`
 * `SG_FROM_NAME` Email from name
 * `PR_PREFIX` PR title to look for example `Bump arthur`
+* `ALERT_SERVICE_LIST` lets of pr labels to be alerted "arthur,apollo"

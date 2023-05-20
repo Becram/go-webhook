@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"go-webhook/utility"
 	"go-webhook/webhook"
 	"log"
 	"net/http"
@@ -12,11 +11,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var envs = []string{"SG_API_KEY", "SG_FROM", "SG_FROM_NAME", "SG_TO_LIST", "SG_EMAIL_TMPL_FILE", "PR_PREFIX", "GH_SECRET"}
+var envs = []string{"SG_API_KEY", "SG_FROM", "SG_FROM_NAME", "SG_TO_LIST", "SG_EMAIL_TMPL_FILE", "PR_PREFIX", "GH_SECRET", "ALERT_SERVICE_LIST"}
 
 func init() {
 	for _, v := range envs {
-		if !utility.DoesEnvExist(v) {
+		if !webhook.DoesEnvExist(v) {
 			fmt.Printf("Environment variable %s Doesn't exit", v)
 			os.Exit(0)
 		}
@@ -88,5 +87,6 @@ func main() {
 	// Init()
 	r := NewRouter()
 	fmt.Print("Serving http request at localhost:8080.....\n")
+	fmt.Printf("Alert for PR with labels  \"%s\"  will be sent to %s\n", os.Getenv("ALERT_SERVICE_LIST"), os.Getenv("SG_TO_LIST"))
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

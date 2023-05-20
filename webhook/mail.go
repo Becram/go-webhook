@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 
-	"go-webhook/utility"
-
 	"github.com/nikoksr/notify"
 	"github.com/nikoksr/notify/service/sendgrid"
 )
@@ -30,11 +28,14 @@ type PullRequest struct {
 	Labels  string `json:"labels"`
 }
 
+// This is a method attached to the `Release` struct. It takes a `template` string as input and sends
+// an email notification using the `sendgrid` service with the `template` string as the email body. It
+// returns an error if there is any issue with sending the email.
 func (rel Release) Send(template string) error {
 	// Create a telegram service. Ignoring error for demo simplicity.
 	fmt.Printf("Sending email to %s\n", os.Getenv("SG_TO_LIST"))
-	sendgridService := sendgrid.New(utility.GetEnv("SG_API_KEY", ""), utility.GetEnv("SG_FROM", "notify@arthuronline.co.uk"), utility.GetEnv("SG_FROM_NAME", "Go webhook app"))
-	sendgridService.AddReceivers(utility.GetEnv("SG_TO_LIST", "bikram.dhoju@gmail.com"))
+	sendgridService := sendgrid.New(getEnv("SG_API_KEY", ""), getEnv("SG_FROM", "notify@arthuronline.co.uk"), getEnv("SG_FROM_NAME", "Go webhook app"))
+	sendgridService.AddReceivers(getEnv("SG_TO_LIST", "bikram.dhoju@gmail.com"))
 	notify.UseServices(sendgridService)
 	err := notify.Send(context.Background(),
 		rel.Name,
@@ -49,8 +50,8 @@ func (rel Release) Send(template string) error {
 func (pr PullRequest) Send(template string) error {
 	// Create a telegram service. Ignoring error for demo simplicity.
 	fmt.Printf("Sending email to %s\n", os.Getenv("SG_TO_LIST"))
-	sendgridService := sendgrid.New(utility.GetEnv("SG_API_KEY", ""), utility.GetEnv("SG_FROM", "notify@arthuronline.co.uk"), utility.GetEnv("SG_FROM_NAME", "Go webhook app"))
-	sendgridService.AddReceivers(utility.GetEnv("SG_TO_LIST", "bikram.dhoju@gmail.com"))
+	sendgridService := sendgrid.New(getEnv("SG_API_KEY", ""), getEnv("SG_FROM", "notify@arthuronline.co.uk"), getEnv("SG_FROM_NAME", "Go webhook app"))
+	sendgridService.AddReceivers(getEnv("SG_TO_LIST", "bikram.dhoju@gmail.com"))
 	notify.UseServices(sendgridService)
 	err := notify.Send(context.Background(),
 		pr.Title,

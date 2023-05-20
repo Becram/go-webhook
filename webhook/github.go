@@ -4,7 +4,6 @@ package webhook
 import (
 	"encoding/json"
 	"fmt"
-	"go-webhook/utility"
 	"html/template"
 	"log"
 	"net/http"
@@ -45,11 +44,11 @@ func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 
 	case github.ReleasePayload:
 		fmt.Println("Release Webhook triggered")
-		HandleReleaseEvent(payload.(github.ReleasePayload))
+		go HandleReleaseEvent(payload.(github.ReleasePayload))
 
 	case github.PullRequestPayload:
 		fmt.Println("PR Webhook triggered")
-		HandlePullRequestEvent(payload.(github.PullRequestPayload))
+		go HandlePullRequestEvent(payload.(github.PullRequestPayload))
 
 	default:
 		fmt.Println("Not a  release or pr event")
@@ -74,11 +73,14 @@ func HandleReleaseEvent(payload github.ReleasePayload) {
 }
 
 func HandlePullRequestEvent(payload github.PullRequestPayload) {
-	if payload.Action == "closed" && payload.PullRequest.Merged && payload.PullRequest.Head.User.Login == "arthur-crm" {
-		version, err := utility.GetArthurVersion(payload.PullRequest.Title)
+	labels := getLabels(payload)
+	fmt.Printf("PR detected with following labels %s\n", labels)
+	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
+		// if payload.Action == "closed" || payload.Action == "edited" && validateLabels(labels) {
+		version, err := getArthurVersion(payload.PullRequest.Title)
 		if err == nil {
 			fmt.Printf("Version: %s\n", version)
-			var mail Mail = &PullRequest{Title: "Arthur Version\t" + version, Body: payload.PullRequest.Body, Arthur: payload.PullRequest.User.Login, History: payload.PullRequest.HTMLURL}
+			var mail Mail = &PullRequest{Title: "Arthur Version " + version, Body: payload.PullRequest.Body, Arthur: payload.PullRequest.User.Login, History: payload.PullRequest.HTMLURL}
 			data, err := json.Marshal(mail)
 			if err != nil {
 				log.Fatal(err)
@@ -87,7 +89,5 @@ func HandlePullRequestEvent(payload github.PullRequestPayload) {
 			emailTPL := mail.getTemplate(temp)
 			mail.Send(emailTPL)
 		}
-
 	}
-
 }
