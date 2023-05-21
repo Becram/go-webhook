@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  go-webhook:
-    container_name: go-webhook
+  app:
+    container_name: app
     env_file:
     - ./.env
     build:
@@ -12,3 +12,19 @@ services:
         - VERSION=Latest
     ports:
       - "8080:8080"
+  psql:
+    container_name: psql
+    image: bitnami/postgresql:12.15.0
+    env_file:
+    - ./.env
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'postgresql_master_data:/bitnami/postgresql'
+  test:
+    container_name: test
+    image: praqma/network-multitool
+
+volumes:
+  postgresql_master_data:
+

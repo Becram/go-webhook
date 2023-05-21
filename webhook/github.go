@@ -4,10 +4,12 @@ package webhook
 import (
 	"encoding/json"
 	"fmt"
+	"go-webhook/psql"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-playground/webhooks/v6/github"
 )
@@ -72,15 +74,21 @@ func HandleReleaseEvent(payload github.ReleasePayload) {
 	}
 }
 
+// The function handles a pull request event, validates its labels, extracts version information, sends
+// an email notification, and creates a notification in a PostgreSQL database.
 func HandlePullRequestEvent(payload github.PullRequestPayload) {
 	labels := getLabels(payload)
 	fmt.Printf("PR detected with following labels %s\n", labels)
 	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
 		// if payload.Action == "closed" || payload.Action == "edited" && validateLabels(labels) {
 		version, err := getArthurVersion(payload.PullRequest.Title)
+		title := payload.PullRequest.Title
+		body := payload.PullRequest.Body
+		arthur := payload.PullRequest.User.Login
+		history := payload.PullRequest.HTMLURL
 		if err == nil {
 			fmt.Printf("Version: %s\n", version)
-			var mail Mail = &PullRequest{Title: "Arthur Version " + version, Body: payload.PullRequest.Body, Arthur: payload.PullRequest.User.Login, History: payload.PullRequest.HTMLURL}
+			var mail Mail = &PullRequest{Title: "Arthur Version " + version, Body: body, Arthur: arthur, History: history}
 			data, err := json.Marshal(mail)
 			if err != nil {
 				log.Fatal(err)
@@ -88,6 +96,8 @@ func HandlePullRequestEvent(payload github.PullRequestPayload) {
 			fmt.Printf("%s\n", data)
 			emailTPL := mail.getTemplate(temp)
 			mail.Send(emailTPL)
+			notification := &psql.Notification{Arthur: arthur, Title: title, Timestamp: time.Now(), Version: version, Body: body}
+			psql.CreateNotification(*notification)
 		}
 	}
 }
