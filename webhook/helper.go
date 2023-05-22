@@ -35,7 +35,7 @@ func getArthurVersion(str string) (string, error) {
 	// if !strings.HasPrefix(str, os.Getenv("PR_PREFIX")) {
 	// 	return "", errors.New("not a arthur release")
 	// }
-	var re = regexp.MustCompile(os.Getenv("VERSION_REGEX"))
+	var re = regexp.MustCompile(`(?m)v([0-9]+)\.([0-9]+)\.([0-9]+)`)
 	match := re.FindAllString(str, -1)
 	if len(match) < 1 {
 		return "", errors.New("no version match")

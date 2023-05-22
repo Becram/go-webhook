@@ -22,7 +22,6 @@ var envs = []string{"SG_API_KEY",
 	"POSTGRESQL_DATABASE",
 	"POSTGRESQL_USERNAME",
 	"POSTGRESQL_ADDRESS",
-	"VERSION_REGEX",
 }
 
 func init() {

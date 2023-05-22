@@ -49,7 +49,6 @@ func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 		go HandleReleaseEvent(payload.(github.ReleasePayload))
 
 	case github.PullRequestPayload:
-		fmt.Println("PR Webhook triggered")
 		go HandlePullRequestEvent(payload.(github.PullRequestPayload))
 
 	default:
