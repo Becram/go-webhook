@@ -35,7 +35,7 @@ func getArthurVersion(str string) (string, error) {
 	// if !strings.HasPrefix(str, os.Getenv("PR_PREFIX")) {
 	// 	return "", errors.New("not a arthur release")
 	// }
-	var re = regexp.MustCompile(`(?m)v[0-9]\.[0-9]\.[0-9]+[0-9]`)
+	var re = regexp.MustCompile(os.Getenv("VERSION_REGEX"))
 	match := re.FindAllString(str, -1)
 	if len(match) < 1 {
 		return "", errors.New("no version match")
@@ -57,13 +57,26 @@ func getLabels(payload github.PullRequestPayload) []string {
 // This function validates if any string in a given array matches with a list of strings obtained from
 // an environment variable.
 func validateLabels(check []string) bool {
+	if !stringInSlice("prod", check) {
+		fmt.Println("prod label not in the pr labels...skipping alert")
+		return false
+	}
 	svc := strings.Split(os.Getenv("ALERT_SERVICE_LIST"), ",")
 	for _, i := range check {
 		for _, j := range svc {
 			if j == i {
-				fmt.Printf("Service %s Found in alert list\n", j)
+				fmt.Printf("Service %s found in alert list...Alerting\n", j)
 				return true
 			}
+		}
+	}
+	return false
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
 		}
 	}
 	return false

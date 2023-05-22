@@ -63,6 +63,9 @@ func (pr PullRequest) Send(template string) error {
 	return nil
 }
 
+// This is a method attached to the `Release` struct that takes a pointer to a `template.Template` as
+// input and returns a string. It updates the template with the values of the `Release` struct and
+// returns the resulting string.
 func (rel Release) getTemplate(t *template.Template) string {
 	fmt.Printf("Updating template for release %s\n", rel.History)
 	var buffer bytes.Buffer

@@ -80,14 +80,13 @@ func HandlePullRequestEvent(payload github.PullRequestPayload) {
 	labels := getLabels(payload)
 	fmt.Printf("PR detected with following labels %s\n", labels)
 	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
-		// if payload.Action == "closed" || payload.Action == "edited" && validateLabels(labels) {
+		// if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
 		version, err := getArthurVersion(payload.PullRequest.Title)
 		title := payload.PullRequest.Title
 		body := payload.PullRequest.Body
 		arthur := payload.PullRequest.User.Login
 		history := payload.PullRequest.HTMLURL
 		if err == nil {
-			fmt.Printf("Version: %s\n", version)
 			var mail Mail = &PullRequest{Title: "Arthur Version " + version, Body: body, Arthur: arthur, History: history}
 			data, err := json.Marshal(mail)
 			if err != nil {

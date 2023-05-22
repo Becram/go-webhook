@@ -7,6 +7,7 @@ import (
 	"github.com/nikoksr/notify/service/amazonsns"
 )
 
+// The function sends an SMS notification using Amazon SNS service.
 func SendSMS() error {
 	snsService, _ := amazonsns.New(getEnv("AWS_ACCESS_KEY_ID", ""), getEnv("AWS_SECRET_ACCESS_KEY", ""), getEnv("AWS_REGION", ""))
 	// if err != nil {

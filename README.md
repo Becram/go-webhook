@@ -10,3 +10,7 @@
 * `SG_FROM_NAME` Email from name
 * `PR_PREFIX` PR title to look for example `Bump arthur`
 * `ALERT_SERVICE_LIST` lets of pr labels to be alerted "arthur,apollo"
+* `POSTGRESQL_PASSWORD` "admin"
+* `POSTGRESQL_DATABASE` "go-webhook"
+* `POSTGRESQL_USERNAME` "admin"
+* `POSTGRESQL_ADDRESS` "127.0.0.1:5432"
