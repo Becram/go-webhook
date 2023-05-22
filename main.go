@@ -11,7 +11,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var envs = []string{"SG_API_KEY", "SG_FROM", "SG_FROM_NAME", "SG_TO_LIST", "SG_EMAIL_TMPL_FILE", "GH_SECRET", "ALERT_SERVICE_LIST"}
+var envs = []string{"SG_API_KEY",
+	"SG_FROM",
+	"SG_FROM_NAME",
+	"SG_TO_LIST",
+	"SG_EMAIL_TMPL_FILE",
+	"GH_SECRET",
+	"ALERT_SERVICE_LIST",
+	"POSTGRESQL_PASSWORD",
+	"POSTGRESQL_DATABASE",
+	"POSTGRESQL_USERNAME",
+	"POSTGRESQL_ADDRESS",
+	"VERSION_REGEX",
+}
 
 func init() {
 	for _, v := range envs {
