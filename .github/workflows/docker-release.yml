@@ -59,16 +59,16 @@ jobs:
             "TARGETARCH=amd64"
             "VERSION=${{ env.DOCKER_METADATA_OUTPUT_VERSION }}"
       
-      - uses: rickstaa/action-create-tag@v1
-        id: "tag_create"
-        with:
-          tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-          tag_exists_error: true
-          message: "Latest release"
-          github_token: ${{ secrets.API_GH_TOKEN }}
+      # - uses: rickstaa/action-create-tag@v1
+      #   id: "tag_create"
+      #   with:
+      #     tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+      #     tag_exists_error: true
+      #     message: "Latest release"
+      #     github_token: ${{ secrets.API_GH_TOKEN }}
       
-      - uses: ncipollo/release-action@v1
-        with:
-          generateReleaseNotes: true
-          tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-          token: ${{ secrets.API_GH_TOKEN }}
+      # - uses: ncipollo/release-action@v1
+      #   with:
+      #     generateReleaseNotes: true
+      #     tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+      #     token: ${{ secrets.API_GH_TOKEN }}
