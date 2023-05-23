@@ -81,10 +81,15 @@ func HandlePullRequestEvent(payload github.PullRequestPayload) {
 	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
 		// if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
 		version, err := getArthurVersion(payload.PullRequest.Title)
+		if err != nil {
+			log.Fatal(err)
+		}
+		app := getAppName(labels)[0]
 		title := payload.PullRequest.Title
 		body := payload.PullRequest.Body
-		arthur := payload.PullRequest.User.Login
-		history := payload.PullRequest.HTMLURL
+		arthur := payload.PullRequest.MergedBy.Login
+		history := "https://github.com/arthur-crm/" + app + "/releases/tag/" + version
+
 		if err == nil {
 			var mail Mail = &PullRequest{Title: "Arthur Version " + version, Body: body, Arthur: arthur, History: history}
 			data, err := json.Marshal(mail)

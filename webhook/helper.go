@@ -54,6 +54,17 @@ func getLabels(payload github.PullRequestPayload) []string {
 	return out
 }
 
+// The function removes the string "prod" from a given slice of strings.
+func getAppName(s []string) []string {
+	remove := "prod"
+	for i, v := range s {
+		if v == remove {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
 // This function validates if any string in a given array matches with a list of strings obtained from
 // an environment variable.
 func validateLabels(check []string) bool {
