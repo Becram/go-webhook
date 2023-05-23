@@ -1,9 +1,5 @@
 name: Release Go
-
-on:
-  release:
-    types:
-      - "created"
+on: workflow_dispatch
 
 permissions:
   contents: write

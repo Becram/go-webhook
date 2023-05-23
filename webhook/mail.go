@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/nikoksr/notify"
 	"github.com/nikoksr/notify/service/sendgrid"
@@ -49,9 +50,11 @@ func (rel Release) Send(template string) error {
 
 func (pr PullRequest) Send(template string) error {
 	// Create a telegram service. Ignoring error for demo simplicity.
-	fmt.Printf("Sending email to %s\n", os.Getenv("SG_TO_LIST"))
+	emails := strings.Split(os.Getenv("SG_TO_LIST"), ",")
+
+	fmt.Printf("Sending email to %s\n", emails[:])
 	sendgridService := sendgrid.New(getEnv("SG_API_KEY", ""), getEnv("SG_FROM", "notify@arthuronline.co.uk"), getEnv("SG_FROM_NAME", "Go webhook app"))
-	sendgridService.AddReceivers(getEnv("SG_TO_LIST", "bikram.dhoju@gmail.com"))
+	sendgridService.AddReceivers(emails...)
 	notify.UseServices(sendgridService)
 	err := notify.Send(context.Background(),
 		pr.Title,
