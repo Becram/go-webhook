@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 type (
 	// Config represents the configuration for the application.
@@ -28,7 +31,8 @@ type (
 
 // The function loads configuration data and returns a Config struct with Notify information.
 func Load() (*Config, error) {
-	n := &Notify{Email: &Email{Api: os.Getenv("SG_API_KEY"), Receivers: []string{os.Getenv("SG_TO_LIST")}}}
+	emails := strings.Split(os.Getenv("SG_TO_LIST"), ",")
+	n := &Notify{Email: &Email{Api: os.Getenv("SG_API_KEY"), Receivers: emails}}
 	config := &Config{
 		Notify: *n,
 	}
