@@ -26,6 +26,8 @@ func init() {
 	temp = template.Must(template.ParseFiles(os.Getenv("SG_EMAIL_TMPL_FILE")))
 }
 
+// The function handles incoming webhook data from GitHub and triggers different actions based on the
+// type of event received.
 func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 	// PrintBody(req)
 
@@ -63,8 +65,8 @@ func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 func HandlePullRequestEvent(payload github.PullRequestPayload) {
 	labels := getLabels(payload)
 	fmt.Printf("PR detected with following labels %s\n", labels)
-	// if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
-	if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
+	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
+		// if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
 		version, err := getArthurVersion(payload.PullRequest.Title)
 		if err != nil {
 			fmt.Printf("Version not found in title error: %s", err)
@@ -73,8 +75,8 @@ func HandlePullRequestEvent(payload github.PullRequestPayload) {
 		app := getAppName(labels)[0]
 		title := payload.PullRequest.Title
 		body := payload.PullRequest.Body
-		// arthur := payload.PullRequest.MergedBy.Login
-		arthur := "arthur"
+		arthur := payload.PullRequest.MergedBy.Login
+		// arthur := "arthur"
 		history := "https://github.com/arthur-crm/" + app + "/releases/tag/" + version
 
 		if err == nil {
