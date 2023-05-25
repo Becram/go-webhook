@@ -1,5 +1,7 @@
 name: Release Go
-on: workflow_dispatch
+on:
+  release:
+    types: [created]
 
 permissions:
   contents: write

@@ -4,6 +4,7 @@ package webhook
 import (
 	"encoding/json"
 	"fmt"
+	"go-webhook/config"
 	"go-webhook/psql"
 	"html/template"
 	"log"
@@ -15,7 +16,6 @@ import (
 )
 
 type Mail interface {
-	Send(string) error
 	getTemplate(*template.Template) string
 }
 
@@ -46,7 +46,7 @@ func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 
 	case github.ReleasePayload:
 		fmt.Println("Release Webhook triggered")
-		go HandleReleaseEvent(payload.(github.ReleasePayload))
+		// go HandleReleaseEvent(payload.(github.ReleasePayload))
 
 	case github.PullRequestPayload:
 		go HandlePullRequestEvent(payload.(github.PullRequestPayload))
@@ -58,36 +58,23 @@ func GetWebhookData(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func HandleReleaseEvent(payload github.ReleasePayload) {
-	if payload.Action == "published" {
-		var mail Mail = &Release{Name: *payload.Release.Name, Body: *payload.Release.Body, Arthur: *&payload.Release.Author.Login, History: *&payload.Release.AssetsURL}
-		// fmt.Printf("Release %v\n", mail)
-		data, err := json.Marshal(mail)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%s\n", data)
-		emailTPL := mail.getTemplate(temp)
-		mail.Send(emailTPL)
-
-	}
-}
-
 // The function handles a pull request event, validates its labels, extracts version information, sends
 // an email notification, and creates a notification in a PostgreSQL database.
 func HandlePullRequestEvent(payload github.PullRequestPayload) {
 	labels := getLabels(payload)
 	fmt.Printf("PR detected with following labels %s\n", labels)
-	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
-		// if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
+	// if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
+	if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
 		version, err := getArthurVersion(payload.PullRequest.Title)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Printf("Version not found in title error: %s", err)
 		}
+
 		app := getAppName(labels)[0]
 		title := payload.PullRequest.Title
 		body := payload.PullRequest.Body
-		arthur := payload.PullRequest.MergedBy.Login
+		// arthur := payload.PullRequest.MergedBy.Login
+		arthur := "arthur"
 		history := "https://github.com/arthur-crm/" + app + "/releases/tag/" + version
 
 		if err == nil {
@@ -98,7 +85,15 @@ func HandlePullRequestEvent(payload github.PullRequestPayload) {
 			}
 			fmt.Printf("%s\n", data)
 			emailTPL := mail.getTemplate(temp)
-			mail.Send(emailTPL)
+			sg_cfg, err := config.Load()
+			if err != nil {
+				log.Fatal(err)
+			}
+			c := New(sg_cfg)
+			status := c.SendEmail(emailTPL, title)
+			if status != nil {
+				fmt.Printf("Email %s", status)
+			}
 			notification := &psql.Notification{Arthur: arthur, Title: title, Timestamp: time.Now(), Version: version, Body: body}
 			psql.CreateNotification(*notification)
 		}
