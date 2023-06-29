@@ -23,7 +23,10 @@ func listenForMail() {
 	go func() {
 		for {
 			msg := <-app.MailChan
-			Notify(msg)
+			err := Notify(msg)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}()
 }
@@ -73,6 +76,7 @@ func Notify(m models.MailData) (err error) {
 		if err != nil {
 			log.Println("cannot build message")
 		}
+		log.Println("Email being sent to:", to)
 		mail := sendgrid.New(api, from, sender)
 		mail.AddReceivers(to...)
 		notifier.UseServices(mail)
