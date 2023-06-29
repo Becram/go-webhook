@@ -2,7 +2,6 @@ project_name: go-webhook
 builds:
   - env: [CGO_ENABLED=0]
     main: ./cmd/api/...
-    no_main_check: true
     goos:
       - linux
       - darwin
@@ -11,7 +10,7 @@ builds:
       - arm64
 dockers:
 - image_templates: ["ghcr.io/becram/go-webhook:{{ .Version }}"]
-  dockerfile: Dockerfile
+  dockerfile: Dockerfile.goreleaser
   build_flag_templates:
   - --label=org.opencontainers.image.title={{ .ProjectName }}
   - --label=org.opencontainers.image.description={{ .ProjectName }}
