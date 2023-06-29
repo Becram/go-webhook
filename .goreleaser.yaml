@@ -21,7 +21,7 @@ dockers:
   - --label=org.opencontainers.image.revision={{ .FullCommit }}
   - --label=org.opencontainers.image.licenses=MIT
   extra_files:
-    - "./email-templates/email.tpl.html"
+    - "./email-templates/email.pr.tpl.html"
 nfpms:
 - maintainer: Bikram Dhoju <bikram.dhoju@gmail.com>
   description: go-webhook
