@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
 	"net/http"
-	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/config"
 	"github.com/Becram/go-webhook/internal/handlers"
@@ -39,17 +39,8 @@ func main() {
 }
 
 func run() error {
-	// gob.Register(models.Reservation{})
-	// gob.Register(models.User{})
-	// gob.Register(models.Room{})
-	// gob.Register(models.Restriction{})
+
 	app.InProduction = false
-
-	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	app.InfoLog = infoLog
-
-	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-	app.ErrorLog = errorLog
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan

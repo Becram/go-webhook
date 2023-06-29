@@ -5,10 +5,11 @@ import (
 	"context"
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/models"
 

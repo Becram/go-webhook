@@ -1,8 +1,9 @@
 package config
 
 import (
-	"log"
 	"text/template"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/models"
 	"github.com/alexedwards/scs/v2"

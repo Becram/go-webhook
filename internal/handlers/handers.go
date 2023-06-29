@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/config"
 	"github.com/Becram/go-webhook/internal/repository"
@@ -33,7 +34,7 @@ func NewHandlers(r *Repository) {
 
 // The Home function renders the home page template in Go.
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	log.Println("Nothing to do here")
+	log.Println("path / called")
 }
 
 func (m *Repository) GHWebhook(w http.ResponseWriter, req *http.Request) {

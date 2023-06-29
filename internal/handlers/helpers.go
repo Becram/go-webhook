@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"regexp"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/models"
 	"github.com/go-playground/webhooks/github"
