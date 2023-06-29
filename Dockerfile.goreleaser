@@ -3,4 +3,4 @@ WORKDIR /app
 COPY go-webhook ./
 COPY email-templates ./
 
-# ENTRYPOINT ["/app"]
+ENTRYPOINT ["/app/go-webhook"]
