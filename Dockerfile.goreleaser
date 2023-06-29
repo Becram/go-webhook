@@ -1,0 +1,6 @@
+FROM ubuntu:23.04
+WORKDIR /app
+COPY go-webhook ./
+COPY email-templates ./
+
+# ENTRYPOINT ["/app"]

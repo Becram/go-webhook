@@ -3,7 +3,30 @@ builds:
   - env: [CGO_ENABLED=0]
     goos:
       - linux
-      - windows
       - darwin
     goarch:
       - amd64
+      - arm64
+dockers:
+- image_templates: ["ghcr.io/becram/go-webhook:{{ .Version }}"]
+  dockerfile: Dockerfile
+  build_flag_templates:
+  - --label=org.opencontainers.image.title={{ .ProjectName }}
+  - --label=org.opencontainers.image.description={{ .ProjectName }}
+  - --label=org.opencontainers.image.url=https://github.com/Becram/go-webhook
+  - --label=org.opencontainers.image.source=https://github.com/Becram/go-webhook
+  - --label=org.opencontainers.image.version={{ .Version }}
+  - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+  - --label=org.opencontainers.image.revision={{ .FullCommit }}
+  - --label=org.opencontainers.image.licenses=MIT
+  extra_files:
+    - "./email-templates/email.tpl.html"
+nfpms:
+- maintainer: Bikram Dhoju <bikram.dhoju@gmail.com>
+  description: go-webhook
+  homepage: https://github.com/Becram/go-webhook
+  license: MIT
+  formats:
+  - deb
+  - rpm
+  - apk

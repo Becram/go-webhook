@@ -8,7 +8,7 @@ WORKDIR /work
 COPY . /work
 
 # Build admission-webhook
-RUN go build -o bin/app .
+RUN go build -o bin/app cmd/api/*
 
 # ---
 FROM ubuntu:23.04 AS run
@@ -18,6 +18,6 @@ ENV VERSION=${VERSION}
 
 COPY --from=build /work/bin/app /usr/local/bin/
 COPY --from=build /etc/ssl/certs /etc/ssl/certs
-COPY ./static  /work/static
+COPY ./email-templates  /work/email-templates
 
 CMD ["app"]

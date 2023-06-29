@@ -1,69 +1,45 @@
-name: Release docker
+name: goreleaser
 
 on:
-  release:
-    types: [created]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  push:
+    # run only against tags
+    tags:
+      - "*"
 
 permissions:
-  id-token: write
+  contents: write
   packages: write
-  contents: read
+  # issues: write
 
 jobs:
-  build-push:
+  goreleaser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
         with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=semver,pattern={{raw}}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
-
-      - name: Login to registry ${{ env.REGISTRY }}
-        uses: docker/login-action@v2.1.0
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - uses: actions/setup-go@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
+          go-version: 1.19.0
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      
-      - name: Build and push
-        uses: docker/build-push-action@v3
+      # More assembly might be required: Docker logins, GPG, etc. It all depends
+      # on your needs.
+      - uses: goreleaser/goreleaser-action@v4
         with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=min
-          build-args: |
-            "TARGETARCH=amd64"
-            "VERSION=${{ env.DOCKER_METADATA_OUTPUT_VERSION }}"
-      
-      # - uses: rickstaa/action-create-tag@v1
-      #   id: "tag_create"
-      #   with:
-      #     tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-      #     tag_exists_error: true
-      #     message: "Latest release"
-      #     github_token: ${{ secrets.API_GH_TOKEN }}
-      
-      # - uses: ncipollo/release-action@v1
-      #   with:
-      #     generateReleaseNotes: true
-      #     tag: ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
-      #     token: ${{ secrets.API_GH_TOKEN }}
+          # either 'goreleaser' (default) or 'goreleaser-pro':
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro'
+          # distribution:
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
