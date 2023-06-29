@@ -1,6 +1,7 @@
 project_name: go-webhook
 builds:
   - env: [CGO_ENABLED=0]
+    main: ./cmd/api/
     goos:
       - linux
       - darwin
