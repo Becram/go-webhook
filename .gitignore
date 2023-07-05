@@ -1,1 +1,2 @@
 .env
+deploy/manifests/go-webhook/patch.yaml

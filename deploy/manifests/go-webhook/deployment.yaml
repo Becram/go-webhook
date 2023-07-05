@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: go-webhook
+  name: go-webhook
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-webhook
+  template:
+    metadata:
+      labels:
+        app: go-webhook
+    spec:
+      containers:
+        - image: go-webhook:1.0
+          imagePullPolicy: Never
+          name: go-webhook
+          env:
+            - name: TLS
+              value: "true"
+            - name: LOG_LEVEL
+              value: "trace"
+            - name: LOG_JSON
+              value: "false"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32M
+            limits:
+              cpu: 100m
+              memory: 64M
+      serviceAccount: go-webhook

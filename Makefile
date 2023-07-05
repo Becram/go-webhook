@@ -41,38 +41,20 @@ delete-config:
 	kubectl delete -f deploy/manifests/cluster-config/
 
 .PHONY: deploy
-deploy: push delete deploy-config
+deploy: push delete  deploy-config
 	@echo "\n🚀 Deploying go-webhook..."
-	kubectl apply -f deploy/manifests/webhook/
+	kustomize build deploy/manifests/go-webhook/ | kubectl apply -f-
+
 
 .PHONY: delete
 delete:
-	@echo "\n♻️  Deleting go-webhook deployment if existing..."
-	kubectl delete -f deploy/manifests/webhook/ || true
-
-.PHONY: pod
-pod: delete-pod
-	@echo "\n🚀 Deploying test pod..."
-	kubectl apply -f deploy/manifests/pods/test-pod.yaml
-
-.PHONY: delete-pod
-delete-pod:
-	@echo "\n♻️ Deleting test pod..."
-	kubectl delete -f deploy/manifests/pods/lifespan-seven.pod.yaml --force
-
-.PHONY: bad-pod
-bad-pod:
-	@echo "\n🚀 Deploying \"bad\" pod..."
-	kubectl apply -f deploy/manifests/pods/bad-name.pod.yaml
-
-.PHONY: delete-bad-pod
-delete-bad-pod:
-	@echo "\n🚀 Deleting \"bad\" pod..."
-	kubectl delete -f deploy/manifests/pods/bad-name.pod.yaml
+	@echo "\n  Deleting go-webhook deployment if existing..."
+	kubectl delete deploy go-webhook
 
 .PHONY: logs
 logs:
 	@echo "\n🔍 Streaming simple-go-webhook logs..."
+	sleep 8
 	kubectl logs -l app=go-webhook -f
 
 .PHONY: delete-all

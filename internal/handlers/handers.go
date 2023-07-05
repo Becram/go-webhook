@@ -1,14 +1,18 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/config"
+	"github.com/Becram/go-webhook/internal/models"
 	"github.com/Becram/go-webhook/internal/repository"
+	"github.com/Becram/go-webhook/internal/webhook"
 	"github.com/go-playground/webhooks/github"
 )
 
@@ -43,6 +47,8 @@ func (m *Repository) GHWebhook(w http.ResponseWriter, req *http.Request) {
 	hook, err := github.New(github.Options.Secret(os.Getenv("GH_SECRET")))
 	if err != nil {
 		log.Fatal("wrong secret addressed: %w", err)
+		log.Println(req.Header)
+
 	}
 	payload, err := hook.Parse(req, github.ReleaseEvent, github.PullRequestEvent)
 
@@ -71,5 +77,35 @@ func (m *Repository) GHWebhook(w http.ResponseWriter, req *http.Request) {
 		fmt.Println("Not a  release or pr event")
 
 	}
+
+}
+
+func (m *Repository) AlertWebhook(w http.ResponseWriter, r *http.Request) {
+
+	var msg models.HookMessage
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	e := json.Unmarshal(bodyBytes, &msg)
+	if e != nil {
+		log.Println(e)
+		// nozzle.printError("opening config file", err.Error())
+	}
+
+	log.Println(msg.CommonLabels)
+
+	if msg.Status == "firing" && msg.Receiver == "go-webhook" {
+		log.Println("Firing Alert detected")
+		for _, i := range msg.Alerts {
+			log.Println(i.Labels["queue"])
+			webhook.RestartPod(i.Labels["queue"])
+		}
+	}
+
+	// if msg.Receiver == "go-webhook" && msg.Status == "firing" {
+
+	// }
 
 }
