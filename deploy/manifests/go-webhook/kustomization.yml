@@ -1,0 +1,9 @@
+resources:
+- deployment.yaml
+- svc.yaml
+- roles-deps.yaml
+
+patches:
+- path: patch.yaml
+  target:
+    kind: Deployment

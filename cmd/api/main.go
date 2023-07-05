@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/config"
@@ -15,12 +17,14 @@ const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
-var infoLog *log.Logger
-var errorLog *log.Logger
 
 func main() {
 	err := run()
 	if err != nil {
+		log.Fatal(err)
+	}
+	e := runCron()
+	if e != nil {
 		log.Fatal(err)
 	}
 	defer close(app.MailChan)
@@ -51,4 +55,23 @@ func run() error {
 	app.UseCache = false
 
 	return nil
+}
+
+func runCron() error {
+	task := func(in string) {
+		log.Println("run something here")
+		// webhook.Values()
+
+	}
+	s := gocron.NewScheduler(time.UTC)
+	s.SingletonModeAll()
+	j, err := s.Cron("*/1 * * * *").Do(task, "test")
+	if err != nil {
+		log.Fatalln("error scheduling job", err)
+	}
+	s.StartAsync()
+	log.Printf("Next Run: %s", j.NextRun())
+
+	return nil
+
 }
