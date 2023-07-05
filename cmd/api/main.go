@@ -2,9 +2,7 @@ package main
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/go-co-op/gocron"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Becram/go-webhook/internal/config"
@@ -23,10 +21,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	e := runCron()
-	if e != nil {
-		log.Fatal(err)
-	}
+	// e := runCron()
+	// if e != nil {
+	// 	log.Fatal(err)
+	// }
 	defer close(app.MailChan)
 	listenForMail()
 
@@ -57,21 +55,21 @@ func run() error {
 	return nil
 }
 
-func runCron() error {
-	task := func(in string) {
-		log.Println("run something here")
-		// webhook.Values()
+// func runCron() error {
+// 	task := func(in string) {
+// 		log.Println("run something here")
+// 		// webhook.Values()
 
-	}
-	s := gocron.NewScheduler(time.UTC)
-	s.SingletonModeAll()
-	j, err := s.Cron("*/1 * * * *").Do(task, "test")
-	if err != nil {
-		log.Fatalln("error scheduling job", err)
-	}
-	s.StartAsync()
-	log.Printf("Next Run: %s", j.NextRun())
+// 	}
+// 	s := gocron.NewScheduler(time.UTC)
+// 	s.SingletonModeAll()
+// 	j, err := s.Cron("*/1 * * * *").Do(task, "test")
+// 	if err != nil {
+// 		log.Fatalln("error scheduling job", err)
+// 	}
+// 	s.StartAsync()
+// 	log.Printf("Next Run: %s", j.NextRun())
 
-	return nil
+// 	return nil
 
-}
+// }

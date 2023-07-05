@@ -9,10 +9,9 @@ import (
 func getDeployment(queue string) (string, error) {
 	queueDeployments := map[string]string{
 		"remittance-queue": "remittance-worker",
-		"batch":            "batch-queue",
-		"elastic_search":   "es-queue",
+		"batch-queue":      "batch-worker",
+		"elastic-queue":    "elastic-worker",
 		"webhook":          "webhook-worker",
-		"webhook1":         "webhook-worker1",
 	}
 
 	for k, v := range queueDeployments {
