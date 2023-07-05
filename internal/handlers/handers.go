@@ -38,7 +38,7 @@ func NewHandlers(r *Repository) {
 
 // The Home function renders the home page template in Go.
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	log.Println("path / called")
+	log.Println(r.Header)
 }
 
 func (m *Repository) GHWebhook(w http.ResponseWriter, req *http.Request) {
@@ -69,7 +69,7 @@ func (m *Repository) GHWebhook(w http.ResponseWriter, req *http.Request) {
 
 		data, err := HandlePullRequestEvent(payload.(github.PullRequestPayload))
 		if err != nil {
-			log.Println("Couldnt process", err)
+			log.Println("couldn't process", err)
 		}
 		m.App.MailChan <- data
 
