@@ -104,8 +104,4 @@ func (m *Repository) AlertWebhook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// if msg.Receiver == "go-webhook" && msg.Status == "firing" {
-
-	// }
-
 }
