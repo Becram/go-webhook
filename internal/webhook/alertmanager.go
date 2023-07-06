@@ -4,18 +4,18 @@ import (
 	"errors"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func getDeployment(queue string) (string, error) {
-	queueDeployments := map[string]string{
-		"remittance-queue": "remittance-worker",
-		"batch":            "batch-queue",
-		"elastic_search":   "es-queue",
-		"webhook":          "webhook-worker",
-		"webhook1":         "webhook-worker1",
+
+	var queueMap map[string]string
+	err := viper.UnmarshalKey("worker", &queueMap)
+	if err != nil {
+		log.Fatalln("cannot parse the config file", err)
 	}
 
-	for k, v := range queueDeployments {
+	for k, v := range queueMap {
 		if k == queue {
 			log.Println("matched", k, v)
 			return v, nil

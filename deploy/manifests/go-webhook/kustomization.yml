@@ -2,6 +2,7 @@ resources:
 - deployment.yaml
 - svc.yaml
 - roles-deps.yaml
+- config.yaml
 
 patches:
 - path: patch.yaml
