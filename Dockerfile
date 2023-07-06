@@ -20,4 +20,4 @@ COPY --from=build /work/bin/go-webhook /usr/local/bin/
 COPY --from=build /etc/ssl/certs /etc/ssl/certs
 COPY ./email-templates  /work/email-templates
 
-CMD ["app"]
+CMD ["/usr/local/bin/go-webhook"]

@@ -3,9 +3,6 @@ builds:
   - env: [CGO_ENABLED=0]
     main: ./cmd/api/
     no_main_check: true
-    goos:
-      - linux
-      - darwin
     goarch:
       - amd64
       - arm64
@@ -30,5 +27,3 @@ nfpms:
   license: MIT
   formats:
   - deb
-  - rpm
-  - apk
