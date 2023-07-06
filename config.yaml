@@ -1,0 +1,7 @@
+version: 1.0
+worker:
+- remittance-queue: remittance-worker
+- batch:            batch-queue
+- elastic_search:   es-queue
+- webhook:          webhook-worker
+- test: new

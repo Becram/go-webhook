@@ -19,6 +19,10 @@ spec:
         - image: go-webhook:1.0
           imagePullPolicy: Never
           name: go-webhook
+          command: ["/usr/local/bin/go-webhook"]
+          args:
+            - --config
+            - /app/config.yaml
           env:
             - name: TLS
               value: "true"
@@ -33,4 +37,11 @@ spec:
             limits:
               cpu: 100m
               memory: 64M
+          volumeMounts:
+          - name: config
+            mountPath: /app
       serviceAccount: go-webhook
+      volumes:
+      - name: config
+        configMap:
+          name: go-webhook-config
