@@ -24,12 +24,8 @@ spec:
             - --config
             - /app/config.yaml
           env:
-            - name: TLS
-              value: "true"
             - name: LOG_LEVEL
               value: "trace"
-            - name: LOG_JSON
-              value: "false"
           resources:
             requests:
               cpu: 50m

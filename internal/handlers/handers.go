@@ -39,6 +39,7 @@ func NewHandlers(r *Repository) {
 // The Home function renders the home page template in Go.
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.Header)
+
 }
 
 func (m *Repository) GHWebhook(w http.ResponseWriter, req *http.Request) {
@@ -101,7 +102,20 @@ func (m *Repository) AlertWebhook(w http.ResponseWriter, r *http.Request) {
 		for _, i := range msg.Alerts {
 			log.Println(i.Labels["queue"])
 			webhook.RestartPod(i.Labels["queue"])
+			data := models.MsgData{}
+			data.Body = fmt.Sprintf("Consumer is missing for queue %s so restarting %s ", i, i.Labels["queue"])
+			data.Type = "slack"
+			m.App.MailChan <- data
 		}
+
 	}
 
+}
+
+func (m *Repository) SlackAlert(w http.ResponseWriter, r *http.Request) {
+	data := models.MsgData{}
+	data.Body = "do something"
+	data.Type = "slack"
+
+	m.App.MailChan <- data
 }

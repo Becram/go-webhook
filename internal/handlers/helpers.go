@@ -4,47 +4,44 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"os"
 	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/Becram/go-webhook/internal/models"
 	"github.com/go-playground/webhooks/github"
 )
 
-var msg models.MailData
+var msg models.MsgData
 var temp *template.Template
 
-func HandlePullRequestEvent(payload github.PullRequestPayload) (models.MailData, error) {
+func HandlePullRequestEvent(payload github.PullRequestPayload) (models.MsgData, error) {
 	labels := getLabels(payload)
+	config := viper.GetStringMapString("email")
 	fmt.Printf("PR detected with following labels %s\n", labels)
 	if payload.Action == "closed" && payload.PullRequest.Merged && validateLabels(labels) {
-		// if payload.Action == "open" || payload.Action == "edited" && validateLabels(labels) {
 		prData, err := GetData(payload)
 		if err != nil {
-			return models.MailData{}, errors.New("error parsing the webhook data, may be some values are missing")
+			return models.MsgData{}, errors.New("error parsing the webhook data, may be some values are missing")
 		}
-		temp = template.Must(template.ParseFiles(os.Getenv("TEMPLATE_EMAIL_PATH")))
-		msg.To = os.Getenv("EMAIL_TO")
-		msg.From = os.Getenv("EMAIL_FROM")
-		msg.Subject = os.Getenv("EMAIL_SUBJECT")
+		temp = template.Must(template.ParseFiles(config["template_path"]))
+		msg.Type = "email"
 		msg.Template = temp
-		msg.Content = prData
-
+		msg.TemplateContent = prData
 		return msg, nil
 	}
-	return models.MailData{}, errors.New("pr request didnt match, pr type or labels")
+	return models.MsgData{}, errors.New("pr request didn't match, pr type or labels")
 }
 
-func GetData(payload github.PullRequestPayload) (models.Content, error) {
-	var data models.Content
+func GetData(payload github.PullRequestPayload) (models.TemplateContent, error) {
+	var data models.TemplateContent
 	labels := getLabels(payload)
 	version, ok := getArthurVersion(payload.PullRequest.Title)
 	if !ok {
-		log.Println("couldnt get the version in the pr")
-		return models.Content{}, errors.New("version not found")
+		log.Println("couldn't get the version in the pr")
+		return models.TemplateContent{}, errors.New("version not found")
 	}
 	appName := getAppName(labels)[0]
 
@@ -101,7 +98,7 @@ func validateLabels(check []string) bool {
 		fmt.Println("prod label not in the pr labels...skipping alert")
 		return false
 	}
-	svc := strings.Split(os.Getenv("ALERT_SERVICE_LIST"), ",")
+	svc := strings.Split(viper.GetString("alert_services"), ",")
 	for _, i := range check {
 		for _, j := range svc {
 			if j == i {

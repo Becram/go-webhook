@@ -1,7 +1,17 @@
 version: 1.0
+worker_namespace: "lumen"
+alert_services: "arthur,apollo"
+notification:
+  slack:
+    channel: "#feed-k8s-staging"
+  email:
+    to: "bikram.dhoju@gmail.com,itsbecram@gmail.com"
+    from: "release@arthuronline.co.uk"
+    subject: "Arthur Release"
+    sender: "ArthurOnline"
+    template_path: "/work/email-templates/email.pr.tpl.html"
 worker:
 - remittance-queue: remittance-worker
-- batch:            batch-queue
-- elastic_search:   es-queue
-- webhook:          webhook-worker
-- test: new
+- batch: batch-queue
+- elastic_search: es-queue
+- webhook: webhook-worker

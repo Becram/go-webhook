@@ -18,7 +18,7 @@ type (
 		ErrorLog      *log.Logger
 		InfoLog       *log.Logger
 		Session       *scs.SessionManager
-		MailChan      chan models.MailData
+		MailChan      chan models.MsgData
 		Sendgrid      *notify.Notifier
 	}
 )

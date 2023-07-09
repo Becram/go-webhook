@@ -19,5 +19,6 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/", handlers.Repo.Home)
 	mux.Post("/github/webhook", handlers.Repo.GHWebhook)
 	mux.Post("/alertmanager/webhook", handlers.Repo.AlertWebhook)
+	mux.Get("/alert/slack", handlers.Repo.SlackAlert)
 	return mux
 }

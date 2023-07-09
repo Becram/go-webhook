@@ -94,7 +94,7 @@ func run() error {
 
 	app.InProduction = false
 
-	mailChan := make(chan models.MailData)
+	mailChan := make(chan models.MsgData)
 	app.MailChan = mailChan
 	repo := handlers.NewRepo(&app)
 

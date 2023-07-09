@@ -5,16 +5,15 @@ import (
 	"time"
 )
 
-// MailData holds an email message
-type MailData struct {
-	To       string
-	From     string
-	Subject  string
-	Content  Content
-	Template *template.Template
+// MsgData holds an email message
+type MsgData struct {
+	Body            string
+	TemplateContent TemplateContent
+	Template        *template.Template
+	Type            string
 }
 
-type Content struct {
+type TemplateContent struct {
 	App     string
 	Version string
 	Title   string
